@@ -23,6 +23,8 @@ def upgrade():
         sa.Column('last_name', mysql.VARCHAR(length=255), nullable=False),
         sa.Column('username', mysql.VARCHAR(length=255), nullable=False),
         sa.Column('email', mysql.VARCHAR(length=255), nullable=False),
+        sa.Column('social_id', mysql.VARCHAR(length=255), nullable=False),
+        sa.Column('social_service', mysql.VARCHAR(length=255), nullable=False),
         sa.PrimaryKeyConstraint('id'),
         mysql_collate='utf8mb4_unicode_ci',
         mysql_default_charset='utf8mb4',

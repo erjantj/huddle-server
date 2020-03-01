@@ -35,5 +35,6 @@ def upgrade():
 
 
 def downgrade():
+    op.drop_index("user_index")
     op.drop_table('user')
-    drop_index("user_index")
+    

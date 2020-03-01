@@ -1,5 +1,10 @@
 import flask
 
+from . import forms
+from . import schemas
+from . import errors
+from . import feed_service
+
 
 bp = flask.Blueprint('feed', __name__)
 
@@ -21,4 +26,9 @@ tasks = [
 @bp.route('/subscribe', methods=['POST'])
 def register():
     return flask.jsonify({'tasks': tasks})
+    
+@bp.route('/search', methods=['GET'])
+@forms.form_handler(forms.SearchForm, schemas.SourceSchema(many=True))
+def search(data: dict) -> list:
+    return feed_service.search(data['q'])
     

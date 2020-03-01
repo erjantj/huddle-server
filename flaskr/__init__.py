@@ -1,17 +1,21 @@
 import os
 
 import flask
-from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate
+import flask_sqlalchemy
+import flask_migrate
+import flask_marshmallow
 
-db = SQLAlchemy()
+
+db = flask_sqlalchemy.SQLAlchemy()
+ma = flask_marshmallow.Marshmallow()
 
 def create_app():
     app = flask.Flask(__name__)
 
     app.config.from_pyfile('config.py', silent=True)
     db.init_app(app)
-    migrate = Migrate(app, db)
+    ma.init_app(app)
+    migrate = flask_migrate.Migrate(app, db)
 
     with app.app_context():
         from . import error_handlers

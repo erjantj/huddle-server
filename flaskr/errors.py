@@ -28,3 +28,7 @@ class ExpiredSignatureError(BaseError):
 class InvalidTokenError(BaseError):
     status_code = 401
     message = 'Invalid token. Please log in again.'    
+
+class ValidationError(BaseError):
+    status_code = 433
+    message = 'Form contains validation errors.'    

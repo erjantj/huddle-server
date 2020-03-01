@@ -20,13 +20,16 @@ def upgrade():
     op.create_table('source',
         sa.Column('id', mysql.BIGINT(display_width=20, unsigned=True), autoincrement=True, nullable=False),
         sa.Column('name', mysql.VARCHAR(length=255), nullable=False),
-        sa.Column('description', mysql.TEXT(), nullable=False),
+        sa.Column('description', mysql.TEXT()),
         sa.Column('url', mysql.VARCHAR(length=255), nullable=False),
         sa.Column('feed_link', mysql.VARCHAR(length=255), nullable=False),
-        sa.Column('icon', mysql.VARCHAR(length=255), nullable=False),
-        sa.Column('language', mysql.VARCHAR(length=255), nullable=False),
+        sa.Column('icon', mysql.VARCHAR(length=255)),
+        sa.Column('language', mysql.VARCHAR(length=255)),
         sa.Column('created_at', mysql.TIMESTAMP(), nullable=True),
         sa.Column('updated_at', mysql.TIMESTAMP(), nullable=True),
+        sa.PrimaryKeyConstraint('id'),
+        mysql_collate='utf8mb4_unicode_ci',
+        mysql_default_charset='utf8mb4',
         mysql_engine='InnoDB'
     )
 
@@ -34,5 +37,6 @@ def upgrade():
 
 
 def downgrade():
+    op.drop_index("source_index")
     op.drop_table('source')
-    drop_index("source_index")
+    

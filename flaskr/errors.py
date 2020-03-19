@@ -25,10 +25,22 @@ class ExpiredSignatureError(BaseError):
     status_code = 401
     message = 'Signature expired. Please log in again.'
 
+
 class InvalidTokenError(BaseError):
     status_code = 401
     message = 'Invalid token. Please log in again.'    
 
+
 class ValidationError(BaseError):
     status_code = 433
     message = 'Form contains validation errors.'    
+
+
+class SourceNotFoundError(BaseError):
+    status_code = 404
+    message = 'Source not found.'    
+
+
+class UserNotFoundError(BaseError):
+    status_code = 404
+    message = 'User not found.'    

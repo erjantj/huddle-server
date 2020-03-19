@@ -7,6 +7,10 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'secret')
 SQLALCHEMY_DATABASE_URI = 'mysql://root:password@localhost/huddle'
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
+CELERY_RESULT_BACKEND = 'db+mysql://root:password@localhost/huddle'
+
+
 OAUTH_CREDENTIALS = {
     'facebook': {
         'id': '828939950941433',

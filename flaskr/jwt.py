@@ -2,7 +2,7 @@ from flask import current_app
 import datetime
 import jwt
 
-from . import errors
+from flaskr import errors
 
 def encode_auth_token(user_id):
     """

@@ -1,8 +1,8 @@
 import flask
 import functools
 import wtforms
-from . import errors
-from . import schemas
+from flaskr import errors
+from flaskr import schemas
 
 
 class SearchForm(wtforms.Form):

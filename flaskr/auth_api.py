@@ -1,11 +1,11 @@
 import flask
 
-from . import models
-from . import errors
-from . import jwt
-from . import forms
-from . import schemas
-from . import auth_service
+from flaskr import models
+from flaskr import errors
+from flaskr import jwt
+from flaskr import forms
+from flaskr import schemas
+from flaskr import auth_service
 
 bp = flask.Blueprint('auth', __name__)
 

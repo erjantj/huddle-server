@@ -3,27 +3,26 @@ import datetime
 import time
 import ssl
 
+from flaskr import helpers
+
 
 if hasattr(ssl, '_create_unverified_context'):
     ssl._create_default_https_context = ssl._create_unverified_context
 
 
 class FeedParser():
-    def __init__(self, url):
-        self.url = url
-        self.source = {}
-        self.entries = []
-        self._feed_obj = feedparser.parse(self.url)
-        self.parse_source()
+    def parse_source(self, url: str):
+        feed_obj = feedparser.parse(url)
+        source = {}
+        entries = []
 
-    def parse_source(self):
-        self.source['name'] = self._feed_obj.feed.get('title', '')
-        self.source['description'] = self._feed_obj.feed.get('description', '')
-        self.source['url'] = self._feed_obj.feed.get('link', '')
-        self.source['feed_link'] = self.url
-        self.source['icon'] = self._feed_obj.feed.get('icon', '')
+        source['name'] = feed_obj.feed.get('title', '')
+        source['description'] = feed_obj.feed.get('description', '')
+        source['url'] = helpers.get_base_url(feed_obj.feed.get('link', ''))
+        source['feed_link'] = self.get_feed_link(feed_obj.feed, url)
+        source['icon'] = feed_obj.feed.get('icon', '')
 
-        for entry in self._feed_obj.entries:
+        for entry in feed_obj.entries:
             entry_data = {}
             entry_data['title'] = entry.get('title', '')
             entry_data['content'] = entry.get('description', '')
@@ -32,5 +31,20 @@ class FeedParser():
             if entry.get('published_parsed', ''):
                 entry_data['published_at'] = datetime.datetime.fromtimestamp(time.mktime(entry.get('published_parsed', '')))
 
-            self.entries.append(entry_data)
+            entries.append(entry_data)
+
+        return {'source': source, 'entries': entries}
         
+
+    def get_feed_link(self, feed: dict, parsed_url: str) -> str:
+        if feed.get('id', ''):
+            return feed.get('id', '')
+
+        if feed.get('links', ''):
+            for link in feed.get('links', []):
+                if link['type'] == 'application/rss+xml':
+                    return link['href']
+
+        return parsed_url
+
+

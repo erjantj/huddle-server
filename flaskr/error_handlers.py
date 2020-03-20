@@ -1,5 +1,5 @@
 import flask
-from . import errors
+from flaskr import errors
 
 bp = flask.Blueprint('error_handlers', __name__)
 

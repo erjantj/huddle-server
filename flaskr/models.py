@@ -1,7 +1,7 @@
 import flask
 import datetime
 
-from . import db
+from flaskr import db
 
 
 class User(db.Model):

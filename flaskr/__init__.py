@@ -4,7 +4,7 @@ import flask
 import flask_sqlalchemy
 import flask_migrate
 import flask_marshmallow
-from . import config
+from flaskr import config
 
 import celery
 

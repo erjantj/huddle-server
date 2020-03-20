@@ -23,22 +23,32 @@ class InvalidUsernameOrPasswordError(BaseError):
 
 class ExpiredSignatureError(BaseError):
     status_code = 401
-    message = 'Signature expired. Please log in again.'
+    message = 'Signature expired. Please, log in again.'
 
 
 class InvalidTokenError(BaseError):
     status_code = 401
-    message = 'Invalid token. Please log in again.'    
+    message = 'Invalid token. Please, log in again.'    
+
+
+class UnauthorizedError(BaseError):
+    status_code = 401
+    message = 'User is unauthorized. Please, log in.'    
 
 
 class ValidationError(BaseError):
-    status_code = 433
+    status_code = 422
     message = 'Form contains validation errors.'    
 
 
 class SourceNotFoundError(BaseError):
     status_code = 404
-    message = 'Source not found.'    
+    message = 'Source not found.'
+
+
+class SourceParseError(BaseError):
+    status_code = 400
+    message = 'Unable to parse source.'
 
 
 class UserNotFoundError(BaseError):

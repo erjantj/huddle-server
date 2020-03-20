@@ -1,8 +1,9 @@
 import flask
 
-from . import errors
-from . import jwt
-from . import models
+import functools
+from flaskr import errors
+from flaskr import jwt
+from flaskr import models
 
 
 def get_user():
@@ -20,3 +21,14 @@ def _get_auth_token():
     if auth_header:
         auth_token = auth_header.split(" ")[1]
     return auth_token
+
+
+def login_required(func):
+    @functools.wraps(func)
+    def decorated_view(*args, **kwargs):
+        try:
+            get_user()
+        except errors.BaseError:
+            raise errors.UnauthorizedError()
+        return func(*args, **kwargs)
+    return decorated_view

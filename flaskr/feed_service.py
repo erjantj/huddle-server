@@ -1,21 +1,30 @@
 import sqlalchemy
 
-from . import models
-from . import db
-from . import errors
-from . import celery
-from .utils import feedparser
+from flaskr import models
+from flaskr import db
+from flaskr import errors
+from flaskr import helpers
+from flaskr import celery
+from flaskr.utils import feedparser
 from sqlalchemy import sql
+import bs4
 import re
+import urllib
+
 
 POSTS_PER_PAGE = 10
 
 
 def search(q: str) -> list:
+    is_url = helpers.is_url(q)
+    if is_url:
+        q = helpers.get_base_url(q)
+
     source_records = search_source(q)
-    if not source_records and _is_link(q):
+    if not source_records and is_url:
         discover_source(q)
-        return models.Source.query.filter(sqlalchemy.or_(models.Source.feed_link==q, models.Source.url==q))
+        url = helpers.get_base_url(q)
+        return models.Source.query.filter_by(url=url).all()
     return source_records
     
 
@@ -44,45 +53,73 @@ def search_source(q: str) -> bool:
     value = '* '.join(words)+'*' if words else ''
     condition = sql.text("MATCH (name,description,url,feed_link) AGAINST (:value IN BOOLEAN MODE)",
             bindparams=[sql.bindparam('value', value)])
-    source_records = models.Source.query.filter(condition)
-    print(models.Source.query.filter(condition).statement.compile())
-    print('* '.join(words))
+    source_records = models.Source.query.filter(condition).all()
     return source_records
 
 
 def discover_source(link: str):
-    source_record = models.Source.query.filter_by(feed_link=link).first()
+    source_record = models.Source.query.filter(sqlalchemy.or_(models.Source.feed_link==link, models.Source.url==link)).all()
     if source_record:
         return
+        
+    sources = []
+    feed_links = [link]
+    # Try to get RSS feed from link.
+    parser = feedparser.FeedParser()
+    data = parser.parse_source(link)
+    if not data['source'] or not data['source']['name']:
+        # If no RSS source found, try to find link on page.
+        feed_links = discover_link(link)
 
-    parser = feedparser.FeedParser(link)
-    source = models.Source(**parser.source)
-    db.session.add(source)
+    for feed_link in feed_links:
+        data = parser.parse_source(feed_link)
+        if not data['source'] or not data['source']['name']:
+            continue
+        source = models.Source(**data['source'])
+        sources.append(source)
+
+    db.session.bulk_save_objects(sources)
     db.session.commit()
 
-    fetch_latest_feed.delay(source.id)
+    for source in sources:
+        fetch_latest_feed.delay(source.url)
     
 
 @celery.task
-def fetch_latest_feed(source_id: int):
-    source = models.Source.query.filter_by(id=source_id).first()
-    parser = feedparser.FeedParser(source.feed_link)
+def fetch_latest_feed(source_url: str):
+    source = models.Source.query.filter_by(url=source_url).first()
+    if not source:
+        raise errors.SourceNotFoundError()
+    parser = feedparser.FeedParser()
+    data = parser.parse_source(source.feed_link)
     
-    links = (entry['link'] for entry in parser.entries)
+    links = (entry['link'] for entry in data['entries'])
     post_records = models.Post.query.filter(models.Post.id.in_(links)).all()
     existing_links = {post.link for post in post_records}
 
     posts = []
-    for entry in parser.entries:
+    for entry in data['entries']:
         if entry['title'] and entry['link'] not in existing_links:
             post = models.Post(**entry)
-            post.source_id = source_id
+            post.source_id = source.id
             posts.append(post)
     db.session.bulk_save_objects(posts)
     db.session.commit()
 
-def _is_link(q: str):
-    # TODO: implement
-    return True
 
+def discover_link(link: str) -> list:
+    possible_feeds = []
+    try:
+        page = urllib.request.urlopen(link).read()
+        html = bs4.BeautifulSoup(page, "html.parser")
+        feeds = html.findAll(type='application/rss+xml') + html.findAll(type='application/atom+xml')
+        for feed in feeds:
+            href = feed.get("href",None)
+            if not href:
+                continue
+            possible_feeds.append(href)
+    except urllib.error.URLError:
+        raise errors.SourceParseError()
+
+    return possible_feeds
 

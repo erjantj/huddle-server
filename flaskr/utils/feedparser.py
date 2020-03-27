@@ -1,7 +1,9 @@
-import feedparser
+"""Feed parser module."""
 import datetime
 import time
 import ssl
+
+import feedparser
 
 from flaskr import helpers
 
@@ -11,7 +13,17 @@ if hasattr(ssl, '_create_unverified_context'):
 
 
 class FeedParser():
-    def parse_source(self, url: str):
+    """Feed parser class."""
+
+    def parse_source(self, url: str) -> dict:
+        """Extracts feed data from given url.
+
+        Args:
+            url: A url to be parsed.
+
+        Returns:
+            Dictionary that contains source and entries data.
+        """
         feed_obj = feedparser.parse(url)
         source = {}
         entries = []
@@ -29,14 +41,24 @@ class FeedParser():
             entry_data['link'] = entry.get('link', '')
             entry_data['author'] = entry.get('author', '')
             if entry.get('published_parsed', ''):
-                entry_data['published_at'] = datetime.datetime.fromtimestamp(time.mktime(entry.get('published_parsed', '')))
+                entry_data['published_at'] = datetime.datetime.fromtimestamp(
+                    time.mktime(entry.get('published_parsed', '')))
 
             entries.append(entry_data)
 
         return {'source': source, 'entries': entries}
-        
 
     def get_feed_link(self, feed: dict, parsed_url: str) -> str:
+        """Returns possible feed link extracted from feed data.
+        If feed link not found returns parsed_url as default.
+
+        Args:
+            feed: A feed data.
+            parsed_url: default feed links.
+
+        Returns:
+            Feed link string.
+        """
         if feed.get('id', ''):
             return feed.get('id', '')
 
@@ -46,5 +68,3 @@ class FeedParser():
                     return link['href']
 
         return parsed_url
-
-

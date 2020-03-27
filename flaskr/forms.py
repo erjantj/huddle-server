@@ -1,23 +1,34 @@
-import flask
+"""Request form validation."""
 import functools
+import flask
+
 import wtforms
+
 from flaskr import errors
-from flaskr import schemas
 
 
+# pylint: disable=too-few-public-methods
 class SearchForm(wtforms.Form):
-    q = wtforms.StringField('Query', [wtforms.validators.DataRequired(), wtforms.validators.Length(max=2500)])
+    """Search request form validation."""
+    q = wtforms.StringField(
+        'Query', [wtforms.validators.DataRequired(),
+                  wtforms.validators.Length(max=2500)])
 
 
 class FeedForm(wtforms.Form):
-    page = wtforms.IntegerField('Page', [wtforms.validators.NumberRange(max=1000), wtforms.validators.Optional()])
+    """Feed request form validation."""
+    page = wtforms.IntegerField('Page', [wtforms.validators.NumberRange(
+        max=1000), wtforms.validators.Optional()])
 
 
 class SubscriptionForm(wtforms.Form):
-    source_id = wtforms.IntegerField('Source id', [wtforms.validators.DataRequired()])
+    """Subscribtion request form validation."""
+    source_id = wtforms.IntegerField(
+        'Source id', [wtforms.validators.DataRequired()])
 
 
 def form_handler(form_class=None, response_schema=None):
+    """Handler that parses and validates requst data."""
     def decorator(func):
         @functools.wraps(func)
         def new_function(*args, **kwargs):

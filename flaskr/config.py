@@ -1,6 +1,7 @@
+"""Module contains applications configs and constants."""
 import os
 
-basedir = os.path.abspath(os.path.dirname(__file__))
+BASEDIR = os.path.abspath(os.path.dirname(__file__))
 
 SECRET_KEY = os.getenv('SECRET_KEY', 'secret')
 
@@ -22,4 +23,4 @@ OAUTH_CREDENTIALS = {
     }
 }
 
-JWT_TTL = 2*60*60 # 2 hours
+JWT_TTL = 2 * 60 * 60  # 2 hours

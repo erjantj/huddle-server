@@ -1,10 +1,13 @@
-import flask
+"""Application models."""
 import datetime
 
 from flaskr import db
 
 
+# pylint: disable=too-few-public-methods
 class User(db.Model):
+    """User model."""
+
     __tablename__ = 'user'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -16,10 +19,12 @@ class User(db.Model):
     email = db.Column(db.String(64), nullable=True)
 
     def __repr__(self):
-        return '<User {}>'.format(self.username)    
+        return '<User {}>'.format(self.username)
 
 
 class Source(db.Model):
+    """Feed source model."""
+
     __tablename__ = 'source'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -31,39 +36,42 @@ class Source(db.Model):
     language = db.Column(db.String(64))
 
     created_at = db.Column(db.DateTime, nullable=False,
-        default=datetime.datetime.utcnow)
+                           default=datetime.datetime.utcnow)
     updated_at = db.Column(db.DateTime, nullable=False,
-        default=datetime.datetime.utcnow)
+                           default=datetime.datetime.utcnow)
 
     def __repr__(self):
-        return '<Source {}>'.format(self.name)  
+        return '<Source {}>'.format(self.name)
 
 
 class Post(db.Model):
+    """Feed post model."""
+
     __tablename__ = 'post'
 
     id = db.Column(db.Integer, primary_key=True)
-    source_id = db.Column(db.Integer, db.ForeignKey("source.id"), nullable=False,)
+    source_id = db.Column(db.Integer, db.ForeignKey(
+        "source.id"), nullable=False,)
     title = db.Column(db.String(64), nullable=False)
     content = db.Column(db.Text())
     link = db.Column(db.String(2000), nullable=False, unique=True)
     author = db.Column(db.String(64), nullable=False)
 
     fetched_at = db.Column(db.DateTime, nullable=False,
-        default=datetime.datetime.utcnow)
+                           default=datetime.datetime.utcnow)
     published_at = db.Column(db.DateTime, nullable=False,
-        default=datetime.datetime.utcnow)
+                             default=datetime.datetime.utcnow)
     updated_at = db.Column(db.DateTime, nullable=False,
-        default=datetime.datetime.utcnow)
+                           default=datetime.datetime.utcnow)
 
     source = db.relationship("Source", backref="posts")
 
     def __repr__(self):
-        return '<Post {}>'.format(self.title)    
-
+        return '<Post {}>'.format(self.title)
 
 
 class SourceSubscription(db.Model):
+    """User subscription to source model."""
     __tablename__ = 'source_subscription'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -71,10 +79,9 @@ class SourceSubscription(db.Model):
     source_id = db.Column(db.Integer, nullable=False)
 
     created_at = db.Column(db.DateTime, nullable=False,
-        default=datetime.datetime.utcnow)
+                           default=datetime.datetime.utcnow)
     updated_at = db.Column(db.DateTime, nullable=False,
-        default=datetime.datetime.utcnow)
+                           default=datetime.datetime.utcnow)
 
     def __repr__(self):
-        return '<Source subscription {}>'.format(self.id)    
-
+        return '<Source subscription {}>'.format(self.id)

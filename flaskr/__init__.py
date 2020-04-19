@@ -5,10 +5,12 @@ import flask_migrate
 import flask_marshmallow
 
 import celery
+import elasticsearch
 
 from flaskr import config
 
 # pylint: disable=invalid-name
+es = elasticsearch.Elasticsearch()
 db = flask_sqlalchemy.SQLAlchemy()
 ma = flask_marshmallow.Marshmallow()
 client = celery.Celery(__name__, broker=config.CELERY_BROKER_URL)

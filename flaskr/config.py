@@ -5,7 +5,14 @@ BASEDIR = os.path.abspath(os.path.dirname(__file__))
 
 SECRET_KEY = os.getenv('SECRET_KEY', 'secret')
 
-SQLALCHEMY_DATABASE_URI = 'mysql://root:password@localhost/huddle'
+SQLALCHEMY_DATABASE_URI = '{engine}://{username}:{password}@{host}:{port}/{database}'.format(
+    engine='mysql+pymysql',
+    username='root',
+    password='root',
+    host='db',
+    port=3306,
+    database='huddle')
+
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 CELERY_BROKER_URL = 'redis://localhost:6379/0'
